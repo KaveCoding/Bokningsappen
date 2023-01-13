@@ -8,21 +8,13 @@ namespace Bokningsappen
     {
         static void Main(string[] args)
         {
-            CreateRows();
+            //CreateRows();
 
-            //Console.WriteLine("Ange veckonummer");
-            //int veckonummer = int.Parse(Console.ReadLine());
-            //Console.WriteLine("Vecka : " + veckonummer + "\n \nRum        1    2    3\n" );
-
-            //view_all_bookings("Måndag",veckonummer);
-            //view_all_bookings("Tisdag", veckonummer);
-            //view_all_bookings("Onsdag", veckonummer);
-            //view_all_bookings("Torsdag", veckonummer);
-            //view_all_bookings("Fredag", veckonummer);
+            Readmethod();
 
 
         }
-                static void view_all_bookings(string Veckodag, int veckonummer)
+            static void view_all_Weekdays(string Veckodag, int veckonummer)
                 {
                     using (var db = new MyDBContext())
                     {
@@ -50,15 +42,15 @@ namespace Bokningsappen
                 {
                     for (int j = 1; j <= 3; j++) //rum nummer
                     {
-                        CreateNewBookings(j, "Måndag", i, true);
-                        CreateNewBookings(j, "Tisdag", i, true);
-                        CreateNewBookings(j, "Onsdag", i, true);
-                        CreateNewBookings(j, "Torsdag", i, true);
-                        CreateNewBookings(j, "Fredag", i, true);
+                        CreateNewWeekdays(j, "Måndag", i, true);
+                        CreateNewWeekdays(j, "Tisdag", i, true);
+                        CreateNewWeekdays(j, "Onsdag", i, true);
+                        CreateNewWeekdays(j, "Torsdag", i, true);
+                        CreateNewWeekdays(j, "Fredag", i, true);
                     }
                 }
             }
-            static void CreateNewBookings( int rum, string veckodag, int veckonummer, bool tillgänglig)
+            static void CreateNewWeekdays( int rum, string veckodag, int veckonummer, bool tillgänglig)
             {
                 using (var db = new MyDBContext())
                 {
@@ -76,6 +68,18 @@ namespace Bokningsappen
                     db.SaveChanges();
                 }
             }
+            static void Readmethod()
+            {
+                Console.WriteLine("Ange veckonummer");
+                int veckonummer = int.Parse(Console.ReadLine());
+                Console.WriteLine("Vecka : " + veckonummer + "\n \nRum        1    2    3\n");
+
+                view_all_Weekdays("Måndag", veckonummer);
+                view_all_Weekdays("Tisdag", veckonummer);
+                view_all_Weekdays("Onsdag", veckonummer);
+                view_all_Weekdays("Torsdag", veckonummer);
+                view_all_Weekdays("Fredag", veckonummer);
             }
-        }
+    }
+}
     
