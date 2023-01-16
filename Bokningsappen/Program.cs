@@ -57,6 +57,11 @@ namespace Bokningsappen
                     {
                         Console.Write("Ledig ");
                     }
+
+                    else
+                    {
+                        Console.Write("Bokad ");
+                    }
                 }
                 Console.WriteLine();
             }
