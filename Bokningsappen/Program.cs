@@ -8,7 +8,6 @@ namespace Bokningsappen
 {
     enum MenuListAdmin
     {
-        Skapa_bokningsbart_rum = 1,
         Lägg_till,
         Ta_bort,
         Uppdatera,
@@ -16,16 +15,14 @@ namespace Bokningsappen
 
         Avsluta
     }
-
-
     enum LäggTill
     {
         Rum,
-        Bokningstillfälle,
+        RumiKalendern,
         Aktivitet,
+        Adminkonto,
         Avsluta,
-        Adminkonto
-    }  
+    }
     enum Visa
     {
         Kalender = 1,
@@ -44,7 +41,6 @@ namespace Bokningsappen
         Adminkonto,
         Avsluta
     }
-  
     enum TaBort
     {
         Rum,
@@ -65,10 +61,9 @@ namespace Bokningsappen
             {
                 VälkomstText();
             }
-
         }
 
-        public static void VälkomstText()
+        static void VälkomstText()
         {
             while (true)
             {
@@ -190,8 +185,17 @@ namespace Bokningsappen
                 db.SaveChanges();
             }
         }
-        static void CreateNewRooms(int tv, int bord, int stolar)
+        static void CreateNewRoom()
         {
+            Console.WriteLine("Hur många TV har rummet?");
+            int tv = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Hur många bord har rummet?");
+            int bord = int.Parse(Console.ReadLine());
+
+            Console.WriteLine("Hur många stolar har rummet?");
+            int stolar = int.Parse(Console.ReadLine());
+
             using (var db = new MyDBContext())
             {
                 var nybokning = new Rum()
@@ -206,18 +210,19 @@ namespace Bokningsappen
             }
         }
 
-            static void Readmethod()
+        static void Readmethod()
 
-            { 
-                Console.WriteLine("Ange veckonummer");
-                int veckonummer = int.Parse(Console.ReadLine());
-                Console.WriteLine("Vecka : " + veckonummer + "\n \nRum            \n");
-                ViewWeekday("Måndag", veckonummer);
-                ViewWeekday("Tisdag", veckonummer);
-                ViewWeekday("Onsdag", veckonummer);
-                ViewWeekday("Torsdag", veckonummer);
-                ViewWeekday("Fredag", veckonummer);
-            }
+        {
+            Console.WriteLine("Ange veckonummer");
+            int veckonummer = int.Parse(Console.ReadLine());
+            Console.WriteLine("Vecka : " + veckonummer + "\n \nRum            \n");
+            ViewWeekday("Måndag", veckonummer);
+            ViewWeekday("Tisdag", veckonummer);
+            ViewWeekday("Onsdag", veckonummer);
+            ViewWeekday("Torsdag", veckonummer);
+            ViewWeekday("Fredag", veckonummer);
+        }
+
         static void Adminlogin()
         {
             Console.WriteLine("Ange epost: ");
@@ -227,14 +232,32 @@ namespace Bokningsappen
                 var hittaAdmin = (from t in db.AdminKonton
                                   where t.Namn == epost
                                   select t).SingleOrDefault();
+
                 if (hittaAdmin != null)
                 {
                     Console.WriteLine("Ange Lösenord");
                     string lösen = Console.ReadLine();
                     if (lösen == hittaAdmin.Lösen)
                     {
-                        MenuListAdmin menu = (MenuListAdmin)99;
+                        foreach (int i in Enum.GetValues(typeof(MenuListAdmin)))
+                        {
+                            Console.WriteLine($"{i}. {Enum.GetName(typeof(MenuListAdmin), i).Replace('_', ' ')}");
+                        }
 
+                        MenuListAdmin menu = (MenuListAdmin)99;
+                        int nr;
+
+                        if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
+                        {
+                            menu = (MenuListAdmin)nr;
+                        }
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Fel inmatning");
+                            Console.ReadKey();
+                            Console.Clear();
+                        }
                         switch (menu)
                         {
                             case MenuListAdmin.Lägg_till:
@@ -244,14 +267,14 @@ namespace Bokningsappen
                                 VisaCase();
                                 break;
                             case MenuListAdmin.Uppdatera:
-
+                                UppdateraCase();
                                 break;
                             case MenuListAdmin.Ta_bort:
+                                TaBortCase();
                                 break;
                             case MenuListAdmin.Avsluta:
                                 break;
                         }
-
                     }
                     else
                     {
@@ -260,74 +283,95 @@ namespace Bokningsappen
                         Console.ReadKey();
                         Console.Clear();
                     }
+
                 }
             }
-        }
-        static void Läggtillcase()
-        {
-            LäggTill läggTill = (LäggTill)99;
-            switch (läggTill)
+
+            static void Läggtillcase()
             {
-                case LäggTill.Bokningstillfälle:
-                    break;
-                case LäggTill.Rum:
-                    break;
-                case LäggTill.Adminkonto:
-                    break;
+                foreach (int i in Enum.GetValues(typeof(LäggTill)))
+                {
+                    Console.WriteLine($"{i}. {Enum.GetName(typeof(LäggTill), i).Replace('_', ' ')}");
+                }
+                LäggTill menu = (LäggTill)99;
+                int nr;
+                if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
+                {
+                    menu = (LäggTill)nr;
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Fel inmatning");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+                switch (menu)
+                {
+                    case LäggTill.Rum:
+                        CreateNewRoom();
+                        break;
+                    case LäggTill.RumiKalendern:
+                        break;
+                    case LäggTill.Aktivitet:
+                        break;
+                    case LäggTill.Adminkonto:
+                        break;
+                    case LäggTill.Avsluta:
+                        break;
+                }
             }
-        }
 
-        static void TaBortCase()
-        {
-            TaBort taBort = (TaBort)99;
-            switch (taBort)
+            static void TaBortCase()
             {
-                case TaBort.Rum:
-                    break;
-                case TaBort.Aktivitet:
-                    break;
-                case TaBort.Sällskap:
-                    break;
+                TaBort taBort = (TaBort)99;
+                switch (taBort)
+                {
+                    case TaBort.Rum:
+                        break;
+                    case TaBort.Aktivitet:
+                        break;
+                    case TaBort.Sällskap:
+                        break;
+                }
             }
-        }
 
-        static void VisaCase()
-        {
-            Visa visa = (Visa)99;
-            switch (visa)
+            static void VisaCase()
             {
-                case Visa.Sällskap:
-                    break;
-                case Visa.Kalender:
-                    break;
-                case Visa.Aktivteter:
-                    break;
-                case Visa.AdminKonton:
-                    break;
+                Visa visa = (Visa)99;
+                switch (visa)
+                {
+                    case Visa.Sällskap:
+                        break;
+                    case Visa.Kalender:
+                        break;
+                    case Visa.Aktivteter:
+                        break;
+                    case Visa.AdminKonton:
+                        break;
+                }
             }
-        }
 
-        static void UppdateraCase()
-        {
-            Uppdatera uppdatera = (Uppdatera)99;
-            switch (uppdatera)
+            static void UppdateraCase()
             {
-                case Uppdatera.Sällskap:
-                    break;
-                case Uppdatera.Aktivitet:
-                    break;
-                case Uppdatera.Rum:
-                    break;
-                case Uppdatera.Adminkonto:
-                    break;
+                Uppdatera uppdatera = (Uppdatera)99;
+                switch (uppdatera)
+                {
+                    case Uppdatera.Sällskap:
+                        break;
+                    case Uppdatera.Aktivitet:
+                        break;
+                    case Uppdatera.Rum:
+                        break;
+                    case Uppdatera.Adminkonto:
+                        break;
+                }
             }
+
+
+
+           
         }
-
-
-
-
-
-
     }
 }
 
