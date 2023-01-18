@@ -52,7 +52,6 @@ namespace Bokningsappen
         Avsluta
     }
 
-
     internal class Program
     {
         static void Main(string[] args)
@@ -87,7 +86,6 @@ namespace Bokningsappen
                 }
             }
         }
-
         static void VisaVecka(string Veckodag, int veckonummer)
         {
             using (var db = new MyDBContext())
@@ -209,7 +207,6 @@ namespace Bokningsappen
             }
         }
         static void VisaKalender()
-
         {
             Console.WriteLine("Ange veckonummer");
             int veckonummer = int.Parse(Console.ReadLine());
@@ -219,12 +216,10 @@ namespace Bokningsappen
             {
                 var rum = (from t in db.Rooms
                            select t);
-
                 foreach (var rumnummer in rum)
                 {
                     Console.Write($"          {rumnummer.Id}\n");
                 }
-
                 VisaVecka("Måndag", veckonummer);
                 VisaVecka("Tisdag", veckonummer);
                 VisaVecka("Onsdag", veckonummer);
@@ -291,7 +286,6 @@ namespace Bokningsappen
                         Console.ReadKey();
                         Console.Clear();
                     }
-
                 }
             }
         }
@@ -317,21 +311,42 @@ namespace Bokningsappen
             switch (menu)
             {
                 case Visa.Rum:
-
+                    VisaRum();
                     break;
                 case Visa.Sällskap:
+                    VisaSällskap();
                     break;
                 case Visa.Kalender:
                     VisaKalender();
                     break;
                 case Visa.AdminKonton:
+                    VisaAdminKonton(); //ej klar
                     break;
                 case Visa.Avsluta:
                     break;
             }
         }
 
+        static void VisaRum()
+        {
+            using (var db = new MyDBContext())
+            {
+                var rum = (from t in db.Rooms
+                           select t);
+                foreach (var t in rum)
+                {
+                    Console.WriteLine($"Rum nummer: {t.Id} Antal bord: {t.Bord} Antal stolar: {t.Stolar} Antal tv: {t.TV}");
+                }
+            }
+        }
+        static void VisaAdminKonton()
+        {
 
+        } //Ej klar
+        static void VisaSällskap()
+        {
+
+        } //Ej klar
         static void Läggtillcase()
         {
             foreach (int i in Enum.GetValues(typeof(LäggTill)))
@@ -369,7 +384,6 @@ namespace Bokningsappen
                     break;
             }
         }
-
         static void TaBortCase()
         {
             foreach (int i in Enum.GetValues(typeof(TaBort)))
@@ -401,7 +415,7 @@ namespace Bokningsappen
                 }
             }
         }
-            static void UppdateraCase()
+        static void UppdateraCase()
             {
                 Uppdatera uppdatera = (Uppdatera)99;
                 switch (uppdatera)
@@ -456,7 +470,7 @@ namespace Bokningsappen
                     Console.ReadKey();
                 }
             }
-        public static void TaBortRum()
+        static void TaBortRum()
         {
             using (var db = new MyDBContext())
             {
