@@ -1,5 +1,6 @@
 ﻿using Bokningsappen.Models;
 using EF_Demo_many2many2.Models;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.Arm;
 
@@ -119,23 +120,18 @@ namespace Bokningsappen
 
 
 
-        static void adminCreateLendableEquipment()
-        {
-
-        }
-        static void CreateRows()
+    
+        static void CreateBookableRoom(int roomid)
         {
             for (int i = 1; i <= 52; i++) //veckonummer
             {
-                for (int j = 1; j <= 4; j++) //RumId nummer
-                {
-                    CreateNewWeekdays(j, "Måndag", i, true);
-                    CreateNewWeekdays(j, "Tisdag", i, true);
-                    CreateNewWeekdays(j, "Onsdag", i, true);
-                    CreateNewWeekdays(j, "Torsdag", i, true);
-                    CreateNewWeekdays(j, "Fredag", i, true);
+                    CreateNewWeekdays(roomid, "Måndag", i, true);
+                    CreateNewWeekdays(roomid, "Tisdag", i, true);
+                    CreateNewWeekdays(roomid, "Onsdag", i, true);
+                    CreateNewWeekdays(roomid, "Torsdag", i, true);
+                    CreateNewWeekdays(roomid, "Fredag", i, true);
                 }
-            }
+            
         }
         static void CreateNewWeekdays(int RumId, string veckodag, int veckonummer, bool tillgänglig)
         {
@@ -155,6 +151,23 @@ namespace Bokningsappen
                 db.SaveChanges();
             }
         }
+        static void CreateNewRooms()
+        {
+            using (var db = new MyDBContext())
+            {
+                var nybokning = new Rum()
+                {
+
+                    RumId = RumId,
+                    Veckodag = veckodag,
+                    Veckonummer = veckonummer,
+                    Tillgänglig = tillgänglig
+
+                };
+                var bokningar = db.Bokningar;
+                bokningar.Add(nybokning);
+                db.SaveChanges();
+            }
         static void Readmethod()
         {
             Console.WriteLine("Ange veckonummer");
