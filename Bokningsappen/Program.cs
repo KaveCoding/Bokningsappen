@@ -153,19 +153,6 @@ namespace Bokningsappen
                 db.SaveChanges();
             }
         }
-        static void LäggTillRumIKalendern()
-        {
-            Console.WriteLine("AngeRumId");
-            int rumId = int.Parse(Console.ReadLine());
-            for (int i = 1; i <= 52; i++) //veckonummer
-            {
-                CreateNewEntries(rumId, "Måndag", i, true);
-                CreateNewEntries(rumId, "Tisdag", i, true);
-                CreateNewEntries(rumId, "Onsdag", i, true);
-                CreateNewEntries(rumId, "Torsdag", i, true);
-                CreateNewEntries(rumId, "Fredag", i, true);
-            }
-        }
         static void CreateNewEntries(int RumId, string veckodag, int veckonummer, bool tillgänglig)
         {
             using (var db = new MyDBContext())
@@ -327,26 +314,19 @@ namespace Bokningsappen
             }
         }
 
-        static void VisaRum()
+        static void LäggTillRumIKalendern()
         {
-            using (var db = new MyDBContext())
+            Console.WriteLine("AngeRumId");
+            int rumId = int.Parse(Console.ReadLine());
+            for (int i = 1; i <= 52; i++) //veckonummer
             {
-                var rum = (from t in db.Rooms
-                           select t);
-                foreach (var t in rum)
-                {
-                    Console.WriteLine($"Rum nummer: {t.Id} Antal bord: {t.Bord} Antal stolar: {t.Stolar} Antal tv: {t.TV}");
-                }
+                CreateNewEntries(rumId, "Måndag", i, true);
+                CreateNewEntries(rumId, "Tisdag", i, true);
+                CreateNewEntries(rumId, "Onsdag", i, true);
+                CreateNewEntries(rumId, "Torsdag", i, true);
+                CreateNewEntries(rumId, "Fredag", i, true);
             }
         }
-        static void VisaAdminKonton()
-        {
-
-        } //Ej klar
-        static void VisaSällskap()
-        {
-
-        } //Ej klar
         static void Läggtillcase()
         {
             foreach (int i in Enum.GetValues(typeof(LäggTill)))
@@ -384,37 +364,67 @@ namespace Bokningsappen
                     break;
             }
         }
-        static void TaBortCase()
+        static void LäggtillAktivitet()
+
         {
-            foreach (int i in Enum.GetValues(typeof(TaBort)))
+            Console.WriteLine("Vad heter aktiviteten?");
+            string namn = Console.ReadLine();
+            using (var db = new MyDBContext())
             {
-                Console.WriteLine($"{i}. {Enum.GetName(typeof(TaBort), i).Replace('_', ' ')}");
-            }
-            TaBort menu = (TaBort)99;
-            int nr;
-            if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
-            {
-                menu = (TaBort)nr;
-            }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine("Fel inmatning");
-                Console.ReadKey();
-                Console.Clear();
-                switch (menu)
+                var nyaktivitet = new Aktivitet()
                 {
-                    case TaBort.Rum:
-                        TaBortRum();
-                        break;
-                    case TaBort.Aktivitet:
-                        TabortAktivitet();
-                        break;
-                    case TaBort.Sällskap:
-                        break;
+                    Name = namn
+                };
+                var aktivitetslista = db.Aktiviteter;
+                aktivitetslista.Add(nyaktivitet);
+                db.SaveChanges();
+                Console.Clear();
+                Console.WriteLine("Aktivitet tillagd!");
+                Console.ReadKey();
+            }
+        }
+        static void LäggtillAdminkonto()
+        {
+            Console.WriteLine("Ange namn");
+            string namn = Console.ReadLine();
+            Console.WriteLine("Ange lösen");
+            string lösen = Console.ReadLine();
+            using (var db = new MyDBContext())
+            {
+                var nyttkonto = new AdminKonto()
+                {
+                    Namn = namn,
+                    Lösen = lösen
+                };
+                var kontolista = db.AdminKonton;
+                kontolista.Add(nyttkonto);
+                db.SaveChanges();
+                Console.Clear();
+                Console.WriteLine("Konto Tillagd!");
+                Console.ReadKey();
+            }
+        }
+        static void VisaRum()
+        {
+            using (var db = new MyDBContext())
+            {
+                var rum = (from t in db.Rooms
+                           select t);
+                foreach (var t in rum)
+                {
+                    Console.WriteLine($"Rum nummer: {t.Id} Antal bord: {t.Bord} Antal stolar: {t.Stolar} Antal tv: {t.TV}");
                 }
             }
         }
+        static void VisaAdminKonton()
+        {
+
+        } //Ej klar
+        static void VisaSällskap()
+        {
+
+        } //Ej klar
+        
         static void UppdateraCase()
             {
                 Uppdatera uppdatera = (Uppdatera)99;
@@ -430,46 +440,46 @@ namespace Bokningsappen
                         break;
                 }
             }
-        static void LäggtillAktivitet()
+        
 
+
+        static void UppdateraSällskap()
+        {
+
+        }
+        static void UppdateraAktivitet()
+        {
+
+        }
+        static void UppdateraRum()
+        {
+
+            VisaRum();
+            Console.WriteLine("Välj rum att ta bort");
+            var input = int.Parse(Console.ReadLine());
+            using (var db = new MyDBContext())
             {
-                Console.WriteLine("Vad heter aktiviteten?");
-                string namn = Console.ReadLine();
-                using (var db = new MyDBContext())
-                {
-                    var nyaktivitet = new Aktivitet()
-                    {
-                        Name = namn
-                    };
-                    var aktivitetslista = db.Aktiviteter;
-                    aktivitetslista.Add(nyaktivitet);
-                    db.SaveChanges();
-                    Console.Clear();
-                    Console.WriteLine("Aktivitet tillagd!");
-                    Console.ReadKey();
-                }
+                var rum = (from t in db.Rooms
+                           where t.Id == input
+                           select t).SingleOrDefault();
+
+
+                Console.WriteLine("Antal TV: ");
+                var TV = int.Parse(Console.ReadLine());
+                rum.TV = leverantörId;
+                Console.WriteLine("KategoriId: ");
+                var kategoriId = int.Parse(Console.ReadLine());
+                updateProdukt.KategoriId = kategoriId;
+                db.SaveChanges();
+                Console.Clear();
+                Console.WriteLine("Lyckad uppdatering av produkt");
+                Console.ReadKey();
+                Console.Clear();
             }
-        static void LäggtillAdminkonto()
-            {
-                Console.WriteLine("Ange namn");
-                string namn = Console.ReadLine();
-                Console.WriteLine("Ange lösen");
-                string lösen = Console.ReadLine();
-                using (var db = new MyDBContext())
-                {
-                    var nyttkonto = new AdminKonto()
-                    {
-                        Namn = namn,
-                        Lösen = lösen
-                    };
-                    var kontolista = db.AdminKonton;
-                    kontolista.Add(nyttkonto);
-                    db.SaveChanges();
-                    Console.Clear();
-                    Console.WriteLine("Konto Tillagd!");
-                    Console.ReadKey();
-                }
-            }
+        static void UppdateraAdminKonto()
+        {
+
+        }
         static void TaBortRum()
         {
             using (var db = new MyDBContext())
@@ -515,6 +525,37 @@ namespace Bokningsappen
                 Console.WriteLine("Fel inmatning");
                 Console.ReadKey();
                 Console.Clear();
+            }
+        }
+        static void TaBortCase()
+        {
+            foreach (int i in Enum.GetValues(typeof(TaBort)))
+            {
+                Console.WriteLine($"{i}. {Enum.GetName(typeof(TaBort), i).Replace('_', ' ')}");
+            }
+            TaBort menu = (TaBort)99;
+            int nr;
+            if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
+            {
+                menu = (TaBort)nr;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Fel inmatning");
+                Console.ReadKey();
+                Console.Clear();
+                switch (menu)
+                {
+                    case TaBort.Rum:
+                        TaBortRum();
+                        break;
+                    case TaBort.Aktivitet:
+                        TabortAktivitet();
+                        break;
+                    case TaBort.Sällskap:
+                        break;
+                }
             }
         }
         static void TabortAktivitet()
