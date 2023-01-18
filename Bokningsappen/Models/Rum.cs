@@ -6,14 +6,12 @@ using System.Threading.Tasks;
 
 namespace Bokningsappen.Models
 {
-    public class Sällskap
+    public class Rum
     {
         public int Id { get; set; }
-        public  string Namn { get; set; }
-        public int Antal_i_sällskapet { get; set; }
-        public int AktivitetId { get; set; }
+        public int TV { get; set; }
+        public int Bord { get; set; }
+        public int Stolar { get; set; }
         public ICollection<Bokning> Bokningar { get; set; }
-
-
-}
+    }
 }

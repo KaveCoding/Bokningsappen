@@ -9,11 +9,11 @@ namespace Bokningsappen
     {
         static void Main(string[] args)
         {
-            //CreateRows();
-            while (true)
-            {
-                VälkomstText();
-            }
+            CreateRows();
+            //while (true)
+            //{
+            //    VälkomstText();
+            //}
 
         }
 
@@ -49,7 +49,9 @@ namespace Bokningsappen
             using (var db = new MyDBContext())
             {
                 var bokningar = db.Bokningar;
+                var sällskap = db.Sällskaper;
                 var result = bokningar.Where(bokning => bokning.Veckonummer == veckonummer && bokning.Veckodag == Veckodag);
+
                 Console.Write($"{Veckodag.PadRight(7)} ");
                 foreach (var t in result)
                 {
@@ -60,7 +62,8 @@ namespace Bokningsappen
 
                     else
                     {
-                        Console.Write("Bokad ");
+                        var namn = sällskap.Where(sällskap => sällskap.Id == t.SällskapId).SingleOrDefault();
+                        Console.Write(namn.Namn +" ");
                     }
                 }
                 Console.WriteLine();
@@ -73,13 +76,15 @@ namespace Bokningsappen
             Console.WriteLine("Hur många är ni i sällskapet?: ");
             var antal = int.Parse(Console.ReadLine());
             Console.WriteLine("Skriv in er aktivitet?: ");
-            var aktivitet = Console.ReadLine();
-            Console.WriteLine("Vilket rum?: ");
-            var rum = int.Parse(Console.ReadLine());
+            var aktivitet = int.Parse(Console.ReadLine());
+            Console.WriteLine("Vilket Rum?: ");
+            var RumId = int.Parse(Console.ReadLine());
             Console.WriteLine("Vilken veckodag?: ");
             var veckodag = (Console.ReadLine());
             Console.WriteLine("Vilken vecka? ");
             var vecka = int.Parse(Console.ReadLine());
+
+
 
             using (var db = new MyDBContext())
             {
@@ -87,7 +92,7 @@ namespace Bokningsappen
                 {
                     Namn = namn,
                     Antal_i_sällskapet = antal,
-                    Aktivitet = aktivitet,
+                    AktivitetId = aktivitet,
 
                 };
                 var sällskapList = db.Sällskaper;
@@ -98,7 +103,7 @@ namespace Bokningsappen
             using (var db = new MyDBContext())
             {
                 var updateKund = (from t in db.Bokningar
-                                  where t.Veckodag == veckodag && t.Veckonummer == vecka && t.Rum == rum && t.Tillgänglig == true
+                                  where t.Veckodag == veckodag && t.Veckonummer == vecka && t.RumId == RumId && t.Tillgänglig == true
                                   select t).SingleOrDefault();
                 var senastesällskap = (from t in db.Sällskaper orderby t.Id descending select t);
                 var test = senastesällskap.First().Id;
@@ -122,7 +127,7 @@ namespace Bokningsappen
         {
             for (int i = 1; i <= 52; i++) //veckonummer
             {
-                for (int j = 1; j <= 3; j++) //rum nummer
+                for (int j = 1; j <= 4; j++) //RumId nummer
                 {
                     CreateNewWeekdays(j, "Måndag", i, true);
                     CreateNewWeekdays(j, "Tisdag", i, true);
@@ -132,14 +137,14 @@ namespace Bokningsappen
                 }
             }
         }
-        static void CreateNewWeekdays(int rum, string veckodag, int veckonummer, bool tillgänglig)
+        static void CreateNewWeekdays(int RumId, string veckodag, int veckonummer, bool tillgänglig)
         {
             using (var db = new MyDBContext())
             {
                 var nybokning = new Bokning()
                 {
 
-                    Rum = rum,
+                    RumId = RumId,
                     Veckodag = veckodag,
                     Veckonummer = veckonummer,
                     Tillgänglig = tillgänglig
@@ -154,7 +159,7 @@ namespace Bokningsappen
         {
             Console.WriteLine("Ange veckonummer");
             int veckonummer = int.Parse(Console.ReadLine());
-            Console.WriteLine("Vecka : " + veckonummer + "\n \nRum        1    2    3\n");
+            Console.WriteLine("Vecka : " + veckonummer + "\n \nRum            \n");
 
             view_all_Weekdays("Måndag", veckonummer);
             view_all_Weekdays("Tisdag", veckonummer);

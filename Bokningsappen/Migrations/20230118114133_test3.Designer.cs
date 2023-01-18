@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bokningsappen.Migrations
 {
     [DbContext(typeof(MyDBContext))]
-    [Migration("20230113154348_init8")]
-    partial class init8
+    [Migration("20230118114133_test3")]
+    partial class test3
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,6 +24,27 @@ namespace Bokningsappen.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("Bokningsappen.Models.AdminKonto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Lösen")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Namn")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AdminKonton");
+                });
+
             modelBuilder.Entity("Bokningsappen.Models.Bokning", b =>
                 {
                     b.Property<int>("Id")
@@ -32,7 +53,7 @@ namespace Bokningsappen.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("Rum")
+                    b.Property<int>("RumId")
                         .HasColumnType("int");
 
                     b.Property<int?>("SällskapId")
@@ -50,9 +71,33 @@ namespace Bokningsappen.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("RumId");
+
                     b.HasIndex("SällskapId");
 
                     b.ToTable("Bokningar");
+                });
+
+            modelBuilder.Entity("Bokningsappen.Models.Rum", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("Bord")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Stolar")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TV")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Rooms");
                 });
 
             modelBuilder.Entity("Bokningsappen.Models.Sällskap", b =>
@@ -62,6 +107,10 @@ namespace Bokningsappen.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Aktivitet")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Antal_i_sällskapet")
                         .HasColumnType("int");
@@ -77,9 +126,20 @@ namespace Bokningsappen.Migrations
 
             modelBuilder.Entity("Bokningsappen.Models.Bokning", b =>
                 {
+                    b.HasOne("Bokningsappen.Models.Rum", null)
+                        .WithMany("Bokningar")
+                        .HasForeignKey("RumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Bokningsappen.Models.Sällskap", null)
                         .WithMany("Bokningar")
                         .HasForeignKey("SällskapId");
+                });
+
+            modelBuilder.Entity("Bokningsappen.Models.Rum", b =>
+                {
+                    b.Navigation("Bokningar");
                 });
 
             modelBuilder.Entity("Bokningsappen.Models.Sällskap", b =>

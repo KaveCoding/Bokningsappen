@@ -16,6 +16,10 @@ namespace EF_Demo_many2many2.Models
         }
         public DbSet<Bokning> Bokningar { get; set; }
         public DbSet<Sällskap> Sällskaper { get; set; }
+        public DbSet<AdminKonto> AdminKonton { get; set; }
+        public DbSet<Rum> Rooms { get; set; }
+        public DbSet<Aktivitet> Aktiviteter { get; set; }
+
 
 
     }
