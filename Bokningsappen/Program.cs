@@ -391,9 +391,10 @@ namespace Bokningsappen
                 switch (menu)
                 {
                     case TaBort.Rum:
-
+                        TaBortRum();
                         break;
                     case TaBort.Aktivitet:
+                        TabortAktivitet();
                         break;
                     case TaBort.Sällskap:
                         break;
@@ -415,7 +416,7 @@ namespace Bokningsappen
                         break;
                 }
             }
-            static void LäggtillAktivitet()
+        static void LäggtillAktivitet()
 
             {
                 Console.WriteLine("Vad heter aktiviteten?");
@@ -434,7 +435,7 @@ namespace Bokningsappen
                     Console.ReadKey();
                 }
             }
-            static void LäggtillAdminkonto()
+        static void LäggtillAdminkonto()
             {
                 Console.WriteLine("Ange namn");
                 string namn = Console.ReadLine();
@@ -457,7 +458,17 @@ namespace Bokningsappen
             }
         public static void TaBortRum()
         {
-            Console.Write("Ange Id att ta bort: ");
+            using (var db = new MyDBContext())
+            {
+                var rooms = (from t in db.Rooms
+                                     select t);
+                foreach (var room in rooms)
+                {
+                    Console.WriteLine($"Room #{room.Id}");
+                }
+            }
+            
+                Console.Write("Ange Id att ta bort: ");
             int roomDelete;
             if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out roomDelete))
             {
@@ -492,6 +503,54 @@ namespace Bokningsappen
                 Console.Clear();
             }
         }
+        static void TabortAktivitet()
+        {
+            using (var db = new MyDBContext())
+            {
+                var aktiviteter = (from t in db.Aktiviteter
+                             select t);
+                foreach (var aktivitet in aktiviteter)
+                {
+                    Console.WriteLine($"Aktiviteter #{aktivitet.Id} {aktivitet.Name}");
+                }
+            }
+
+            Console.Write("Ange Id att ta bort: ");
+            int aktivitetDelete;
+            if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out aktivitetDelete))
+            {
+                using (var db = new MyDBContext())
+                {
+                    var deleteProdukt = (from t in db.Rooms
+                                         where t.Id == aktivitetDelete
+                                         select t).SingleOrDefault();
+                    if (deleteProdukt != null)
+                    {
+                        db.Rooms.Remove((Rum)deleteProdukt);
+                        db.SaveChanges();
+                        Console.Clear();
+                        Console.WriteLine("Rummet har tagits bort");
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Existerar inte");
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                }
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Fel inmatning");
+                Console.ReadKey();
+                Console.Clear();
+            }
+        }
+
     }
     }
 
