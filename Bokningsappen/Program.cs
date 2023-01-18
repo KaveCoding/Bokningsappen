@@ -3,6 +3,7 @@ using EF_Demo_many2many2.Models;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics.Arm;
+using System.Xml;
 
 namespace Bokningsappen
 {
@@ -78,7 +79,7 @@ namespace Bokningsappen
                         BokaTid();
                         break;
                     case "c":
-                        Readmethod();
+                        VisaKalender();
                         break;
                     default:
                         Console.WriteLine("felinmatning");
@@ -155,15 +156,17 @@ namespace Bokningsappen
                 db.SaveChanges();
             }
         }
-        static void CreateBookableRoom(int roomid)
+        static void LäggTillRumIKalendern()
         {
+            Console.WriteLine("AngeRumId");
+            int rumId = int.Parse(Console.ReadLine());
             for (int i = 1; i <= 52; i++) //veckonummer
             {
-                CreateNewEntries(roomid, "Måndag", i, true);
-                CreateNewEntries(roomid, "Tisdag", i, true);
-                CreateNewEntries(roomid, "Onsdag", i, true);
-                CreateNewEntries(roomid, "Torsdag", i, true);
-                CreateNewEntries(roomid, "Fredag", i, true);
+                CreateNewEntries(rumId, "Måndag", i, true);
+                CreateNewEntries(rumId, "Tisdag", i, true);
+                CreateNewEntries(rumId, "Onsdag", i, true);
+                CreateNewEntries(rumId, "Torsdag", i, true);
+                CreateNewEntries(rumId, "Fredag", i, true);
             }
 
         }
@@ -173,12 +176,10 @@ namespace Bokningsappen
             {
                 var nybokning = new Bokning()
                 {
-
                     RumId = RumId,
                     Veckodag = veckodag,
                     Veckonummer = veckonummer,
                     Tillgänglig = tillgänglig
-
                 };
                 var bokningar = db.Bokningar;
                 bokningar.Add(nybokning);
@@ -209,20 +210,30 @@ namespace Bokningsappen
                 db.SaveChanges();
             }
         }
-
-        static void Readmethod()
+        static void VisaKalender()
 
         {
             Console.WriteLine("Ange veckonummer");
             int veckonummer = int.Parse(Console.ReadLine());
-            Console.WriteLine("Vecka : " + veckonummer + "\n \nRum            \n");
-            ViewWeekday("Måndag", veckonummer);
-            ViewWeekday("Tisdag", veckonummer);
-            ViewWeekday("Onsdag", veckonummer);
-            ViewWeekday("Torsdag", veckonummer);
-            ViewWeekday("Fredag", veckonummer);
-        }
+            int counter = 1;
+            Console.WriteLine("Vecka : " + veckonummer);
+            using (var db = new MyDBContext())
+            {
+                var rum = (from t in db.Rooms
+                           select t);
 
+                foreach (var rumnummer in rum)
+                {
+                    Console.Write($"          {rumnummer.Id}\n");
+                }
+                
+                ViewWeekday("Måndag", veckonummer);
+                ViewWeekday("Tisdag", veckonummer);
+                ViewWeekday("Onsdag", veckonummer);
+                ViewWeekday("Torsdag", veckonummer);
+                ViewWeekday("Fredag", veckonummer);
+            }
+        }
         static void Adminlogin()
         {
             Console.WriteLine("Ange epost: ");
@@ -286,95 +297,158 @@ namespace Bokningsappen
 
                 }
             }
-
-            static void Läggtillcase()
-            {
-                foreach (int i in Enum.GetValues(typeof(LäggTill)))
-                {
-                    Console.WriteLine($"{i}. {Enum.GetName(typeof(LäggTill), i).Replace('_', ' ')}");
-                }
-                LäggTill menu = (LäggTill)99;
-                int nr;
-                if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
-                {
-                    menu = (LäggTill)nr;
-                }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Fel inmatning");
-                    Console.ReadKey();
-                    Console.Clear();
-                }
-                switch (menu)
-                {
-                    case LäggTill.Rum:
-                        CreateNewRoom();
-                        break;
-                    case LäggTill.RumiKalendern:
-                        break;
-                    case LäggTill.Aktivitet:
-                        break;
-                    case LäggTill.Adminkonto:
-                        break;
-                    case LäggTill.Avsluta:
-                        break;
-                }
-            }
-
-            static void TaBortCase()
-            {
-                TaBort taBort = (TaBort)99;
-                switch (taBort)
-                {
-                    case TaBort.Rum:
-                        break;
-                    case TaBort.Aktivitet:
-                        break;
-                    case TaBort.Sällskap:
-                        break;
-                }
-            }
-
-            static void VisaCase()
-            {
-                Visa visa = (Visa)99;
-                switch (visa)
-                {
-                    case Visa.Sällskap:
-                        break;
-                    case Visa.Kalender:
-                        break;
-                    case Visa.Aktivteter:
-                        break;
-                    case Visa.AdminKonton:
-                        break;
-                }
-            }
-
-            static void UppdateraCase()
-            {
-                Uppdatera uppdatera = (Uppdatera)99;
-                switch (uppdatera)
-                {
-                    case Uppdatera.Sällskap:
-                        break;
-                    case Uppdatera.Aktivitet:
-                        break;
-                    case Uppdatera.Rum:
-                        break;
-                    case Uppdatera.Adminkonto:
-                        break;
-                }
-            }
-
-
-
-           
         }
-    }
-}
+                static void VisaCase()
+                {
+                    foreach (int i in Enum.GetValues(typeof(LäggTill)))
+                    {
+                        Console.WriteLine($"{i}. {Enum.GetName(typeof(Visa), i).Replace('_', ' ')}");
+                    }
+                    Visa menu = (Visa)99;
+                    int nr;
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
+                    {
+                        menu = (Visa)nr;
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Fel inmatning");
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                    switch (menu)
+                    {
+                        case Visa.Rum:
 
+                            break;
+                        case Visa.Sällskap:
+                            break;
+                        case Visa.Kalender:
+                            break;
+                        case Visa.AdminKonton:
+                            break;
+                        case Visa.Avsluta:
+                            break;
+                    }
+                }
+
+
+                static void Läggtillcase()
+                {
+                    foreach (int i in Enum.GetValues(typeof(LäggTill)))
+                    {
+                        Console.WriteLine($"{i}. {Enum.GetName(typeof(LäggTill), i).Replace('_', ' ')}");
+                    }
+                    LäggTill menu = (LäggTill)99;
+                    int nr;
+                    if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
+                    {
+                        menu = (LäggTill)nr;
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Fel inmatning");
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                    switch (menu)
+                    {
+                        case LäggTill.Rum:
+                            CreateNewRoom();
+                            break;
+                        case LäggTill.RumiKalendern:
+                            LäggTillRumIKalendern();
+                            break;
+                        case LäggTill.Aktivitet:
+                            LäggtillAktivitet();
+                            break;
+                        case LäggTill.Adminkonto:
+                            LäggtillAdminkonto();
+                            break;
+                        case LäggTill.Avsluta:
+                            break;
+                    }
+                }
+
+                static void TaBortCase()
+                {
+                    TaBort taBort = (TaBort)99;
+                    switch (taBort)
+                    {
+                        case TaBort.Rum:
+                            break;
+                        case TaBort.Aktivitet:
+                            break;
+                        case TaBort.Sällskap:
+                            break;
+                    }
+                }
+
+                static void UppdateraCase()
+                {
+                    Uppdatera uppdatera = (Uppdatera)99;
+                    switch (uppdatera)
+                    {
+                        case Uppdatera.Sällskap:
+                            break;
+                        case Uppdatera.Aktivitet:
+                            break;
+                        case Uppdatera.Rum:
+                            break;
+                        case Uppdatera.Adminkonto:
+                            break;
+                    }
+                }
+
+                static void LäggtillAktivitet()
+
+                {
+                    Console.WriteLine("Vad heter aktiviteten?");
+                    string namn = Console.ReadLine();
+                    using (var db = new MyDBContext())
+                    {
+                        var nyaktivitet = new Aktivitet()
+                        {
+                            Name = namn
+                        };
+                        var aktivitetslista = db.Aktiviteter;
+                        aktivitetslista.Add(nyaktivitet);
+                        db.SaveChanges();
+                        Console.Clear();
+                        Console.WriteLine("Aktivitet tillagd!");
+                        Console.ReadKey();
+                    }
+                }
+                static void LäggtillAdminkonto()
+                {
+                    Console.WriteLine("Ange namn");
+                    string namn = Console.ReadLine();
+                    Console.WriteLine("Ange lösen");
+                    string lösen = Console.ReadLine();
+                    using (var db = new MyDBContext())
+                    {
+                        var nyttkonto = new AdminKonto()
+                        {
+                            Namn = namn,
+                            Lösen = lösen
+                        };
+                        var kontolista = db.AdminKonton;
+                        kontolista.Add(nyttkonto);
+                        db.SaveChanges();
+                        Console.Clear();
+                        Console.WriteLine("Konto Tillagd!");
+                        Console.ReadKey();
+                    }
+                }
+
+
+
+
+            }
+        }
+    
 
 
 
