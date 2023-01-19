@@ -30,13 +30,13 @@ namespace Bokningsappen
         Aktivteter,
         Sällskap,
         Rum,
-        Avsluta,
         AdminKonton,
+        Avsluta,
+        
     }
     enum Uppdatera
     {
         Rum,
-        Bokningstillfälle,
         Sällskap,
         Aktivitet,
         Adminkonto,
@@ -67,7 +67,7 @@ namespace Bokningsappen
         {
             while (true)
             {
-                Console.WriteLine("Välkommen till spelfaktoriet!\nAdmin login A\nBoka tid B\nVisa bokade tider C");
+                Console.WriteLine("Välkommen till spelfaktoriet!\nAdmin login A\nBoka tid B\nVisa Kalender C\nAdminuppgifterna är\nNamn: Admin \nLösen: Superdifficultpassword1337!");
                 var input = Console.ReadLine().ToLower();
                 switch (input)
                 {
@@ -99,12 +99,12 @@ namespace Bokningsappen
                 {
                     if (t.Tillgänglig == true)
                     {
-                        Console.Write("Ledig ");
+                        Console.Write("Ledig   ");
                     }
                     else
                     {
                         var namn = sällskap.Where(sällskap => sällskap.Id == t.SällskapId).SingleOrDefault();
-                        Console.Write(namn.Namn + " ");
+                        Console.Write(namn.Namn.PadRight(4) + "".PadRight(3));
                     }
                 }
                 Console.WriteLine();
@@ -116,7 +116,18 @@ namespace Bokningsappen
             var namn = Console.ReadLine();
             Console.WriteLine("Hur många är ni i sällskapet?: ");
             var antal = int.Parse(Console.ReadLine());
+
             Console.WriteLine("Skriv in er aktivitet?: ");
+
+            using (var db = new MyDBContext())
+            {
+                var aktiviteter = (from t in db.Aktiviteter
+                                  select t);
+                foreach (var a in aktiviteter)
+                {
+                    Console.WriteLine($"{a.Id} {a.Name}");
+                }
+            }
             var aktivitet = int.Parse(Console.ReadLine());
             Console.WriteLine("Vilket Rum?: ");
             var RumId = int.Parse(Console.ReadLine());
@@ -151,6 +162,10 @@ namespace Bokningsappen
                 updateKund.Tillgänglig = false;
                 updateKund.SällskapId = test;
                 db.SaveChanges();
+                Console.Clear();
+                Console.WriteLine("Tid bokad!");
+                Console.ReadKey();
+                Console.Clear();
             }
         }
         static void CreateNewEntries(int RumId, string veckodag, int veckonummer, bool tillgänglig)
@@ -203,10 +218,12 @@ namespace Bokningsappen
             {
                 var rum = (from t in db.Rooms
                            select t);
+                Console.Write("Rum");
                 foreach (var rumnummer in rum)
                 {
-                    Console.Write($"          {rumnummer.Id}\n");
+                    Console.Write($"       {rumnummer.Id}");
                 }
+                Console.WriteLine();
                 VisaVecka("Måndag", veckonummer);
                 VisaVecka("Tisdag", veckonummer);
                 VisaVecka("Onsdag", veckonummer);
@@ -216,7 +233,7 @@ namespace Bokningsappen
         }
         static void Adminlogin()
         {
-            Console.WriteLine("Ange epost: ");
+            Console.WriteLine("Ange användarnamn: ");
             var epost = Console.ReadLine();
             using (var db = new MyDBContext())
             {
@@ -313,7 +330,6 @@ namespace Bokningsappen
                     break;
             }
         }
-
         static void LäggTillRumIKalendern()
         {
             Console.WriteLine("AngeRumId");
@@ -365,7 +381,6 @@ namespace Bokningsappen
             }
         }
         static void LäggtillAktivitet()
-
         {
             Console.WriteLine("Vad heter aktiviteten?");
             string namn = Console.ReadLine();
@@ -418,44 +433,157 @@ namespace Bokningsappen
         }
         static void VisaAdminKonton()
         {
-
-        } //Ej klar
+            using (var db = new MyDBContext())
+            {
+                var konton = (from t in db.AdminKonton
+                           select t);
+                foreach (var t in konton)
+                {
+                    Console.WriteLine($"Id: {t.Id} Namn: {t.Namn} Lösen: {t.Lösen} ");
+                }
+            }
+        } 
         static void VisaSällskap()
         {
+            using (var db = new MyDBContext())
+            {
+                var sällskap = (from t in db.Sällskaper
+                              select t);
 
-        } //Ej klar
-        
+                foreach (var t in sällskap)
+                {
+                    var aktivitet = (from a in db.Aktiviteter
+                                     where t.AktivitetId == a.Id
+                                    select a).SingleOrDefault();
+
+                    Console.WriteLine($"Id: {t.Id} Namn: {t.Namn} Antal i sällskapet: {t.Antal_i_sällskapet} Planerad aktivitet: {aktivitet.Name}");
+                }
+            }
+        }
+        static void VisaAktiviteter()
+        {
+            using (var db = new MyDBContext())
+            {
+                var aktiviteter = (from t in db.Aktiviteter
+                                   select t);
+
+                foreach (var t in aktiviteter)
+                {
+
+                    Console.WriteLine($"Id: {t.Id} Namn: {t.Name}");
+                }
+            }
+        }
         static void UppdateraCase()
             {
-                Uppdatera uppdatera = (Uppdatera)99;
-                switch (uppdatera)
+            foreach (int i in Enum.GetValues(typeof(LäggTill)))
+            {
+                Console.WriteLine($"{i}. {Enum.GetName(typeof(Uppdatera), i).Replace('_', ' ')}");
+            }
+            Uppdatera menu = (Uppdatera)99;
+            int nr;
+            if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
+            {
+                menu = (Uppdatera)nr;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Fel inmatning");
+                Console.ReadKey();
+                Console.Clear();
+            }
+                switch (menu)
                 {
                     case Uppdatera.Sällskap:
+                    UppdateraSällskap();
                         break;
                     case Uppdatera.Aktivitet:
+                    UppdateraAktiviteter();
                         break;
-                    case Uppdatera.Rum:
+                case Uppdatera.Rum:
+                    UppdateraRum();
                         break;
                     case Uppdatera.Adminkonto:
+                    UppdateraAdminkonto();
                         break;
                 }
             }
-        
-
-
+        static void UppdateraAktiviteter()
+        {
+            VisaAktiviteter();
+            Console.WriteLine("Välj aktivitet att ändra");
+            var input = int.Parse(Console.ReadLine());
+            using (var db = new MyDBContext())
+            {
+                var aktivitet = (from t in db.Aktiviteter
+                                where t.Id == input
+                                select t).SingleOrDefault();
+                Console.WriteLine("Namn: ");
+                var namn= Console.ReadLine();
+                aktivitet.Name= namn;
+                db.SaveChanges();
+                Console.Clear();
+                Console.WriteLine("Lyckad uppdatering av aktivitet");
+                Console.ReadKey();
+                Console.Clear();
+            }
+        }
+        static void UppdateraAdminkonto()
+        {
+            VisaAdminKonton();
+            Console.WriteLine("Välj konto att ändra");
+            var input = int.Parse(Console.ReadLine());
+            using (var db = new MyDBContext())
+            {
+                var konto = (from t in db.AdminKonton
+                                 where t.Id == input
+                                 select t).SingleOrDefault();
+                Console.WriteLine("Namn: ");
+                var namn = Console.ReadLine();
+                konto.Namn = namn;
+                Console.WriteLine("Lösen: ");
+                var lösen = Console.ReadLine();
+                konto.Lösen = lösen;
+                db.SaveChanges();
+                Console.Clear();
+                Console.WriteLine("Lyckad uppdatering av konto");
+                Console.ReadKey();
+                Console.Clear();
+            }
+        }
         static void UppdateraSällskap()
         {
+            VisaSällskap();
+            Console.WriteLine("Välj sällskap att ändra");
+            var input = int.Parse(Console.ReadLine());
+            using (var db = new MyDBContext())
+            {
+                var sällskap = (from t in db.Sällskaper
+                                where t.Id == input
+                                select t).SingleOrDefault();
 
-        }
-        static void UppdateraAktivitet()
-        {
 
+                Console.WriteLine("Namn: ");
+                var Namn = Console.ReadLine();
+                sällskap.Namn = Namn;
+                Console.WriteLine("Antal i sällskapet: ");
+                var antal = int.Parse(Console.ReadLine());
+                sällskap.Antal_i_sällskapet = antal;
+                Console.WriteLine("Välj aktivitetId: ");
+                var aktivitet = int.Parse(Console.ReadLine());
+                sällskap.AktivitetId = aktivitet;
+                db.SaveChanges();
+                Console.Clear();
+                Console.WriteLine("Lyckad uppdatering av sällskap");
+                Console.ReadKey();
+                Console.Clear();
+            }
         }
         static void UppdateraRum()
         {
-
             VisaRum();
-            Console.WriteLine("Välj rum att ta bort");
+            Console.WriteLine("Välj rum att ändra");
             var input = int.Parse(Console.ReadLine());
             using (var db = new MyDBContext())
             {
@@ -466,67 +594,68 @@ namespace Bokningsappen
 
                 Console.WriteLine("Antal TV: ");
                 var TV = int.Parse(Console.ReadLine());
-                rum.TV = leverantörId;
-                Console.WriteLine("KategoriId: ");
-                var kategoriId = int.Parse(Console.ReadLine());
-                updateProdukt.KategoriId = kategoriId;
+                rum.TV = input;
+                Console.WriteLine("Antal bord: ");
+                var bord = int.Parse(Console.ReadLine());
+                rum.Bord = bord;
+                Console.WriteLine("Antal stolar: ");
+                var stolar = int.Parse(Console.ReadLine());
+                rum.Bord = bord;
+
                 db.SaveChanges();
                 Console.Clear();
-                Console.WriteLine("Lyckad uppdatering av produkt");
+                Console.WriteLine("Lyckad uppdatering av rum");
                 Console.ReadKey();
                 Console.Clear();
             }
-        static void UppdateraAdminKonto()
-        {
-
         }
         static void TaBortRum()
-        {
-            using (var db = new MyDBContext())
-            {
-                var rooms = (from t in db.Rooms
-                                     select t);
-                foreach (var room in rooms)
-                {
-                    Console.WriteLine($"Room #{room.Id}");
-                }
-            }
-            
-                Console.Write("Ange Id att ta bort: ");
-            int roomDelete;
-            if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out roomDelete))
             {
                 using (var db = new MyDBContext())
                 {
-                    var deleteProdukt = (from t in db.Rooms
-                                         where t.Id == roomDelete
-                                         select t).SingleOrDefault();
-                    if (deleteProdukt != null)
+                    var rooms = (from t in db.Rooms
+                                 select t);
+                    foreach (var room in rooms)
                     {
-                        db.Rooms.Remove((Rum)deleteProdukt);
-                        db.SaveChanges();
-                        Console.Clear();
-                        Console.WriteLine("Rummet har tagits bort");
-                        Console.ReadKey();
-                        Console.Clear();
-                    }
-                    else
-                    {
-                        Console.Clear();
-                        Console.WriteLine("Existerar inte");
-                        Console.ReadKey();
-                        Console.Clear();
+                        Console.WriteLine($"Room #{room.Id}");
                     }
                 }
+
+                Console.Write("Ange Id att ta bort: ");
+                int roomDelete;
+                if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out roomDelete))
+                {
+                    using (var db = new MyDBContext())
+                    {
+                        var deleteProdukt = (from t in db.Rooms
+                                             where t.Id == roomDelete
+                                             select t).SingleOrDefault();
+                        if (deleteProdukt != null)
+                        {
+                            db.Rooms.Remove((Rum)deleteProdukt);
+                            db.SaveChanges();
+                            Console.Clear();
+                            Console.WriteLine("Rummet har tagits bort");
+                            Console.ReadKey();
+                            Console.Clear();
+                        }
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine("Existerar inte");
+                            Console.ReadKey();
+                            Console.Clear();
+                        }
+                    }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Fel inmatning");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
             }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine("Fel inmatning");
-                Console.ReadKey();
-                Console.Clear();
-            }
-        }
         static void TaBortCase()
         {
             foreach (int i in Enum.GetValues(typeof(TaBort)))
