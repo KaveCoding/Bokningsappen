@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Bokningsappen.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace EF_Demo_many2many2.Models
+namespace Bokningsappen.Models
 {
     public class MyDBContext : DbContext
     {
