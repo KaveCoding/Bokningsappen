@@ -13,7 +13,7 @@ namespace Bokningsappen.Models
         public int RumId { get; set; }
         public string Veckodag { get; set; }
         public int Veckonummer { get; set; }
-        public bool Tillgänglig { get; set; }
+        public bool? Tillgänglig { get; set; }
         public int? SällskapId { get; set; }
         
 

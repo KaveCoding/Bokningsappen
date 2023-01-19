@@ -152,20 +152,32 @@ namespace Bokningsappen
 
             using (var db = new MyDBContext())
             {
-                var updateKund = (from t in db.Bokningar
+                var tid = (from t in db.Bokningar
                                   where t.Veckodag == veckodag && t.Veckonummer == vecka && t.RumId == RumId && t.Tillgänglig == true
                                   select t).SingleOrDefault();
-                var senastesällskap = (from t in db.Sällskaper orderby t.Id descending select t);
-                var test = senastesällskap.First().Id;
+                if (tid != null && tid.Tillgänglig == true)
+                {
+                    var senastesällskapiD = (from t in db.Sällskaper orderby t.Id descending select t).First().Id;
 
-
-                updateKund.Tillgänglig = false;
-                updateKund.SällskapId = test;
-                db.SaveChanges();
-                Console.Clear();
-                Console.WriteLine("Tid bokad!");
-                Console.ReadKey();
-                Console.Clear();
+                    tid.Tillgänglig = false;
+                    tid.SällskapId = senastesällskapiD;
+                    db.SaveChanges();
+                    Console.Clear();
+                    Console.WriteLine("Tid bokad!");
+                    Console.ReadKey();
+                    Console.Clear();
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.WriteLine("Den tiden är tyvärr redan bokad");
+                    Console.ReadKey();
+                    Console.Clear();
+                    var senastesällskap = (from t in db.Sällskaper orderby t.Id descending select t).First();
+                    var sällskaper = db.Sällskaper;
+                    sällskaper.Remove(senastesällskap);
+                    db.SaveChanges();
+                }
             }
         }
         static void CreateNewEntries(int RumId, string veckodag, int veckonummer, bool tillgänglig)
@@ -295,7 +307,7 @@ namespace Bokningsappen
         }
         static void VisaCase()
         {
-            foreach (int i in Enum.GetValues(typeof(LäggTill)))
+            foreach (int i in Enum.GetValues(typeof(Visa)))
             {
                 Console.WriteLine($"{i}. {Enum.GetName(typeof(Visa), i).Replace('_', ' ')}");
             }
@@ -327,6 +339,7 @@ namespace Bokningsappen
                     VisaAdminKonton(); //ej klar
                     break;
                 case Visa.Avsluta:
+
                     break;
             }
         }
@@ -609,6 +622,39 @@ namespace Bokningsappen
                 Console.Clear();
             }
         }
+        static void TaBortCase()
+        {
+            foreach (int i in Enum.GetValues(typeof(TaBort)))
+            {
+                Console.WriteLine($"{i}. {Enum.GetName(typeof(TaBort), i).Replace('_', ' ')}");
+            }
+            TaBort menu = (TaBort)99;
+            int nr;
+            if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
+            {
+                menu = (TaBort)nr;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Fel inmatning");
+                Console.ReadKey();
+                Console.Clear();
+            }
+                switch (menu)
+                {
+                    case TaBort.Rum:
+                        TaBortRum();
+                        break;
+                    case TaBort.Aktivitet:
+                        TabortAktivitet();
+                        break;
+                    case TaBort.Sällskap:
+                        TabortSällskap();
+                        break;
+                }
+            }
+        
         static void TaBortRum()
             {
                 using (var db = new MyDBContext())
@@ -621,10 +667,10 @@ namespace Bokningsappen
                     }
                 }
 
-                Console.Write("Ange Id att ta bort: ");
-                int roomDelete;
-                if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out roomDelete))
-                {
+            string inmatning = Console.ReadLine();
+            int roomDelete;
+            if (int.TryParse(inmatning, out roomDelete))
+            {
                     using (var db = new MyDBContext())
                     {
                         var deleteProdukt = (from t in db.Rooms
@@ -656,37 +702,6 @@ namespace Bokningsappen
                     Console.Clear();
                 }
             }
-        static void TaBortCase()
-        {
-            foreach (int i in Enum.GetValues(typeof(TaBort)))
-            {
-                Console.WriteLine($"{i}. {Enum.GetName(typeof(TaBort), i).Replace('_', ' ')}");
-            }
-            TaBort menu = (TaBort)99;
-            int nr;
-            if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out nr))
-            {
-                menu = (TaBort)nr;
-            }
-            else
-            {
-                Console.Clear();
-                Console.WriteLine("Fel inmatning");
-                Console.ReadKey();
-                Console.Clear();
-                switch (menu)
-                {
-                    case TaBort.Rum:
-                        TaBortRum();
-                        break;
-                    case TaBort.Aktivitet:
-                        TabortAktivitet();
-                        break;
-                    case TaBort.Sällskap:
-                        break;
-                }
-            }
-        }
         static void TabortAktivitet()
         {
             using (var db = new MyDBContext())
@@ -700,8 +715,9 @@ namespace Bokningsappen
             }
 
             Console.Write("Ange Id att ta bort: ");
+            string inmatning = Console.ReadLine();
             int aktivitetDelete;
-            if (int.TryParse(Console.ReadKey(true).KeyChar.ToString(), out aktivitetDelete))
+            if (int.TryParse(inmatning, out aktivitetDelete))
             {
                 using (var db = new MyDBContext())
                 {
@@ -734,9 +750,48 @@ namespace Bokningsappen
                 Console.Clear();
             }
         }
+        static void TabortSällskap()
+        {
+            VisaSällskap();
 
+            Console.Write("Ange Id att ta bort: ");
+            string inmatning = Console.ReadLine();
+            int sällskapdelete;
+            if (int.TryParse(inmatning, out sällskapdelete))
+            {
+                using (var db = new MyDBContext())
+                {
+                    var deleteProdukt = (from t in db.Sällskaper
+                                         where t.Id == sällskapdelete
+                                         select t).SingleOrDefault();
+                    if (deleteProdukt != null)
+                    {
+                        db.Sällskaper.Remove((Sällskap)deleteProdukt);
+                        db.SaveChanges();
+                        Console.Clear();
+                        Console.WriteLine("Sällskapet har tagits bort");
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Existerar inte");
+                        Console.ReadKey();
+                        Console.Clear();
+                    }
+                }
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Fel inmatning");
+                Console.ReadKey();
+                Console.Clear();
+            }
+        }
     }
-    }
+}
 
     
 
