@@ -66,7 +66,7 @@ namespace Bokningsappen
         {
             while (true)
             {
-                Console.WriteLine("Välkommen till spelfaktoriet!\nAdmin login A\nBoka tid B\nVisa Kalender C\nAdminuppgifterna är\nNamn: Admin \nLösen: Superdifficultpassword1337!");
+                Console.WriteLine("Välkommen till spelfaktoriet!\nAdmin login A\nBoka tid B\nVisa Kalender C\nVisa queries D\nAdminuppgifterna är\nNamn: Admin \nLösen: Superdifficultpassword1337!");
                 var input = Console.ReadLine().ToLower();
                 switch (input)
                 {
@@ -79,12 +79,16 @@ namespace Bokningsappen
                     case "c":
                         Metoder.Visa.VisaKalender();
                         break;
+                    case "d":
+                        Metoder.Visa.Queries();
+                        break;
                     default:
                         Console.WriteLine("felinmatning");
                         break;
                 }
             }
         }
+
         static void Adminlogin()
         {
             Console.WriteLine("Ange användarnamn: ");

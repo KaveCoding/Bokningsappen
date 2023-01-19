@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Bokningsappen.Models;
+using Microsoft.Data.SqlClient;
+using Dapper;
 
 namespace Bokningsappen
 {
@@ -210,7 +212,56 @@ namespace Bokningsappen
                 }
             }
         }
+
+
+            public static void Queries()
+            {
+                string connString = "Server=tcp:eliasanghnaeh.database.windows.net,1433;Initial Catalog=WebbshoppGrupp8Eskilstuna;Persist Security Info=False;User ID=Group8;Password=Ourpasswordis100%secure;MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=False;Connection Timeout=5;";
+
+                
+                {
+
+                    using (var connection = new SqlConnection(connString))
+                    {
+                        var flestbokningar = $"SELECT Namn, COUNT(AktivitetId) AS Antal FROM dbo.sällskaper s join Aktiviteter a on s.AktivitetId = a.Id Group By namn ORDER BY Antal desc";
+
+                        var flestbokningarlista = new List<QueryClass>();
+                        connection.Open();
+                        flestbokningarlista = connection.Query<QueryClass>(flestbokningar).ToList();
+                        Console.WriteLine("Person med flest bokningar");
+                        foreach (var x in flestbokningarlista)
+                        {
+                            Console.WriteLine($"Namn: {x.Namn} Antal bokningar: {x.Antal}");
+                        }
+                        Console.WriteLine("----------------------------------------------");
+
+                        
+                        var populärastAktivitet = $"SELECT a.Name as Namn, count(a.Name) as Antal FROM dbo.sällskaper s join Aktiviteter a on s.AktivitetId = a.Id group by a.Name order by Antal desc";
+                       
+                        var populärastAktivitetlista = new List<QueryClass>();
+                        populärastAktivitetlista = connection.Query<QueryClass>(populärastAktivitet).ToList();
+                        Console.WriteLine("Aktiviteter med flest bokningar");
+                        foreach (var x in populärastAktivitetlista)
+                        {
+                            Console.WriteLine($"Aktivitet: {x.Namn} Antal bokningar: {x.Antal}");
+                        }
+                        Console.WriteLine("----------------------------------------------");
+
+                        connection.Close();
+                    }
+                  
+
+
+
+
+
+
+
+                }
+            }
         }
+
+
 
         public class Uppdatera : Metoder
         {
